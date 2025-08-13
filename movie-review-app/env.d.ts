@@ -1,2 +1,2 @@
 /// <reference types="vite/client" />
-OMDB_KEY=NONE
+OMDB_KEY=c33efd4e
