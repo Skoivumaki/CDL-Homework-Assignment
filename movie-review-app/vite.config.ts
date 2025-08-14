@@ -19,9 +19,33 @@ export default defineConfig(({ mode }) => {
   const omdbProxyPlugin = (): Plugin => ({
     name: 'vite:omdb-proxy-with-reviews',
     configureServer(server) {
-      server.middlewares.use(bodyParser.json())
 
-           // POST /api/movie/:id/review append to reviewsDB.json
+      // GET  /api/movie/:id/review return the stored reviews
+      server.middlewares.use(async (req, res, next) => {
+        const getMatch = req.url?.match(/^\/api\/movie\/([^/]+)\/review$/)
+        if (req.method !== 'GET' || !getMatch) {
+          return next()
+        }
+
+        const imdbID = decodeURIComponent(getMatch[1])
+
+        let reviewsDB: Record<string, { User: string; Rating: number }[]> = {}
+        try {
+          const txt = await fs.readFile(reviewsPath, 'utf-8')
+          reviewsDB = JSON.parse(txt)
+        }
+        catch {
+          reviewsDB = {}
+        }
+
+        const reviews = reviewsDB[imdbID] || []
+
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'application/json')
+        return res.end(JSON.stringify(reviews))
+      })
+
+      // POST /api/movie/:id/review append to reviewsDB.json
       server.middlewares.use(async (req, res, next) => {
         const postMatch = req.url?.match(/^\/api\/movie\/([^/]+)\/review$/)
         if (req.method !== 'POST' || !postMatch) {
