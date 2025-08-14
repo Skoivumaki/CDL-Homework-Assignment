@@ -3,7 +3,6 @@ import { defineConfig, loadEnv, Plugin } from 'vite'
 import vue         from '@vitejs/plugin-vue'
 import vueJsx      from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import bodyParser  from 'body-parser'
 import path from 'node:path'
 import fs          from 'fs/promises'
 
