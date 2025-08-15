@@ -5,9 +5,36 @@ import vueJsx      from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import path from 'node:path'
 import fs          from 'fs/promises'
+import bodyParser from 'body-parser'
+import { computed } from 'vue'
+import { useFetch } from './src/composables/useFetch';
 
 export default defineConfig(({ mode }) => {
-
+interface Movie {
+  Title: string
+  Year: string
+  Rated?: string
+  Released?: string
+  Runtime?: string
+  Genre?: string
+  Director?: string
+  Writer?: string
+  Actors?: string
+  Plot?: string
+  Language?: string
+  Country?: string
+  Awards?: string
+  Poster?: string
+  Metascore?: string
+  imdbRating?: string
+  imdbVotes?: string
+  Type?: string
+  DVD?: string
+  BoxOffice?: string
+  Production?: string
+  Website?: string
+  Response?: string
+}
   // Declaring "API" prototype endpoints. Todo: Run in Express instead. Needs types.
   const env = loadEnv(mode, process.cwd(), '')
   const omdbKey = env.OMDB_KEY
@@ -18,6 +45,8 @@ export default defineConfig(({ mode }) => {
   const omdbProxyPlugin = (): Plugin => ({
     name: 'vite:omdb-proxy-with-reviews',
     configureServer(server) {
+
+      server.middlewares.use(bodyParser.json())
 
       // GET  /api/movie/:id/review return the stored reviews
       server.middlewares.use(async (req, res, next) => {
@@ -52,10 +81,14 @@ export default defineConfig(({ mode }) => {
         }
 
         const imdbID = decodeURIComponent(postMatch[1])
-        const { User, Rating } = (req as any).body || {}
 
-        // Simple validation
+        const { Title, User, Rating } = (req as any).body || {}
+        console.log(req.body)
+
+        // Simple validation. Todo: Add check for duplicate User's (only 1 review/user for same movie)
+        // This logic doenst check if Title is matching to imdbID, vulnerable to bad records.
         if (
+          typeof Title !== 'string' ||
           typeof User !== 'string' ||
           typeof Rating   !== 'number' ||
           Rating < 0 || Rating > 10
@@ -64,7 +97,7 @@ export default defineConfig(({ mode }) => {
           return res.end('Invalid payload')
         }
 
-        let reviewsDB: Record<string, { User: string; Rating: number }[]> = {}
+        let reviewsDB: Record<string, { Title: string; User: string; Rating: number }[]> = {}
         try {
           const txt = await fs.readFile(reviewsPath, 'utf-8')
           reviewsDB = JSON.parse(txt)
@@ -73,7 +106,7 @@ export default defineConfig(({ mode }) => {
         }
 
         reviewsDB[imdbID] = reviewsDB[imdbID] || []
-        reviewsDB[imdbID].push({ User, Rating })
+        reviewsDB[imdbID].push({ Title, User, Rating })
 
         try {
           await fs.writeFile(
@@ -93,6 +126,7 @@ export default defineConfig(({ mode }) => {
 
       // GET  /api/movie/:imdbID proxy to OMDB, then append localRatings
       server.middlewares.use(async (req, res, next) => {
+        console.log("run")
         if (!req.url?.startsWith('/api/movie/') || req.method !== 'GET') {
           return next()
         }
