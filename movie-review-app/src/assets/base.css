@@ -1,0 +1,22 @@
+:root {
+  --breakpoint-xs: 480px;
+  /* Extra small devices (phones, 600px and down) */
+  --breakpoint-sm: 576px;
+  /* Small devices (tablets, 768px and up) */
+  --breakpoint-md: 768px;
+  /* Medium devices (desktops, 992px and up) */
+  --breakpoint-lg: 992px;
+  /* Large devices (large desktops, 1200px and up) */
+  --breakpoint-xl: 1200px;
+  /* Extra large devices (large desktops, 1400px and up) */
+}
+
+:root {
+  --color-primary: #222831;
+  --color-secondary: #393E46;
+  --color-highlight: #FFD369;
+  --color-white: #EEEEEE;
+  --color-text: #EEEEEE;
+  --color-text-alt: #FFFFFF;
+  --color-text-light: #B4B4B4;
+}

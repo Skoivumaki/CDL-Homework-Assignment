@@ -1,0 +1,51 @@
+@import './base.css';
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --color-primary: #222831;
+  --color-secondary: #393E46;
+  --color-highlight: #FFD369;
+  --color-white: #EEEEEE;
+  --color-text: #EEEEEE;
+  --color-text-alt: #FFFFFF;
+  --color-text-light: #B4B4B4;
+}
+
+@layer components {
+    p {
+        font-size: medium;
+        color: var(--color-text);
+    }
+
+    h1 {
+        font-size: xx-large;
+        font-weight: bold;
+        color: var(--color-text);
+    }
+
+    h2 {
+        font-size: large;
+        font-weight: bold;
+        color: var(--color-highlight);
+    }
+
+    input {
+        @apply transition-all duration-200 p-2 w-full max-w-md mb-4 focus:outline-2 focus:outline-offset-2 focus:outline-highlight;
+    }
+
+    textarea {
+        @apply transition-all duration-200 p-2 w-full mb-4 focus:outline-2 focus:outline-offset-2 focus:outline-highlight;
+    }
+
+    strong {
+        color: var(--color-highlight) !important;
+    }
+
+    body {
+        @apply bg-secondary;
+    }
+}
+
