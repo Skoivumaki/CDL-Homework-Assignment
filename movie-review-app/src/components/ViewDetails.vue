@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { useFetch } from '@/composables/useFetch'
+import { computed, ref } from 'vue'
+import ViewReviews from './ViewReviews.vue'
+import SubmitReview from './SubmitReview.vue'
 
 // Todo: Move types to own file
 interface Movie {
@@ -30,86 +33,61 @@ interface Movie {
 
 const props = defineProps<{ imdbID: string }>()
 const emit  = defineEmits(['close'])
+const selectedMovieID = ref('')
 
-const movieData = ref<Movie | null>(null)
-const loading   = ref(true)
-const error     = ref<string | null>(null)
-
-watchEffect(async () => {
-  if (!props.imdbID) return
-  loading.value = true
-  error.value   = null
-  console.log(import.meta.env.VITE_OMDB_KEY)
-
-  // Todo: Figure a better way todo this without revealing secrets
-  const url = `https://www.omdbapi.com/?apikey=${import.meta.env.VITE_OMDB_KEY}&i=${props.imdbID}`
-  try {
-    const res  = await fetch(url)
-    const json = await res.json()
-    if (json.Response === 'False') {
-      error.value = json.Error || 'Movie not found'
-      movieData.value = null
-    } else {
-      movieData.value = json as Movie
-    }
-  }
-  catch (e: any) {
-    error.value = e.message || 'Fetch failed'
-    movieData.value = null
-  }
-  finally {
-    loading.value = false
-  }
-})
+const { data: movieData, loading, error } = useFetch<Movie>(
+  computed(() => props.imdbID ? `/api/movie/${props.imdbID}` : '')
+)
 
 function onBack() {
   emit('close')
 }
+
+function openReviews(m: string) {
+  selectedMovieID.value = m
+}
+
 </script>
 
 <template>
-  <div class="modal">
-    <button class="back" @click="onBack">← Back</button>
-
-    <div v-if="loading" class="status">Loading…</div>
-    <div v-else-if="error" class="status error">{{ error }}</div>
-    <template v-else-if="movieData">
-      <h2>{{ movieData.Title }} <small>({{ movieData.Year }})</small></h2>
-      <p><strong>Director:</strong> {{ movieData.Director }}</p>
-      <p><strong>Genre:</strong> {{ movieData.Genre }}</p>
-      <p><strong>Plot:</strong> {{ movieData.Plot }}</p>
-      <p><strong>Actors:</strong> {{ movieData.Actors }}</p>
-      <p><strong>imdbRating:</strong> {{ movieData.imdbRating }} / 10</p>
-    </template>
+  <div class="transform transition-all w-full h-full bg-primary p-0">
+    <button
+      class="bg-highlight border-solid p-2 text-white rounded-br-lg text-lg cursor-pointer relative transition duration-200 hover:bg-secondary"
+      @click="onBack"
+    >
+    Close
+    </button>
+    <div class="p-2 flex-row">
+      <div v-if="loading" class="text-highlight text-center">Loading…</div>
+      <div v-else-if="error">{{ error }}</div>
+      <template v-else-if="movieData">
+        <div>
+          <h1>{{ movieData.Title }} <small>({{ movieData.Year }})</small></h1>
+          <p><strong>Director:</strong> {{ movieData.Director }}</p>
+          <p><strong>Genre:</strong> {{ movieData.Genre }}</p>
+          <p><strong>Plot:</strong> {{ movieData.Plot }}</p>
+          <p><strong>Actors:</strong> {{ movieData.Actors }}</p>
+          <p><strong>IMDB Rating:</strong> {{ movieData.imdbRating }} / 10</p>
+        </div>
+        <SubmitReview
+          :imdbID=imdbID
+          :Title=movieData.Title
+        />
+        <button @click="openReviews(props.imdbID)"
+          style="cursor:pointer; display:flex; align-items:center;">
+          View reviews
+        </button>
+      </template>
+      <div
+      v-if="selectedMovieID"
+      class="overlay"
+      @click.self="selectedMovieID = ''"
+      >
+        <ViewReviews
+          :imdbID="selectedMovieID"
+          @hide="selectedMovieID = ''"
+        />
+      </div>
+    </div>
   </div>
 </template>
-
-<style>
-.modal {
-  background: white;
-  padding: 1.5em;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  position: relative;
-}
-.back {
-  background: none;
-  border: none;
-  color: #42b883;
-  font-size: 1em;
-  cursor: pointer;
-  position: absolute;
-  top: 1em;
-  left: 1em;
-}
-.status {
-  padding: 2em 0;
-  text-align: center;
-  font-style: italic;
-}
-.status.error {
-  color: red;
-}
-</style>
