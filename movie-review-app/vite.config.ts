@@ -6,8 +6,6 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import path from 'node:path'
 import fs          from 'fs/promises'
 import bodyParser from 'body-parser'
-import { computed } from 'vue'
-import { useFetch } from './src/composables/useFetch';
 
 export default defineConfig(({ mode }) => {
 interface Movie {
@@ -25,6 +23,7 @@ interface Movie {
   Country?: string
   Awards?: string
   Poster?: string
+  Reviews?: { User: string; Review: string; Rating: number }[];
   Metascore?: string
   imdbRating?: string
   imdbVotes?: string
@@ -40,7 +39,7 @@ interface Movie {
   const omdbKey = env.OMDB_KEY
 
   const localRatings: Record<string, { User: string; Rating: number }[]> = {}
-  const reviewsPath = path.resolve(process.cwd(), 'public', 'reviewsDB.json')
+  const moviesPath = path.resolve(process.cwd(), 'public', 'movieDB.json')
 
   const omdbProxyPlugin = (): Plugin => ({
     name: 'vite:omdb-proxy-with-reviews',
@@ -50,83 +49,115 @@ interface Movie {
 
       // GET  /api/movie/:id/review return the stored reviews
       server.middlewares.use(async (req, res, next) => {
-        const getMatch = req.url?.match(/^\/api\/movie\/([^/]+)\/review$/)
+        const getMatch = req.url?.match(/^\/api\/movie\/([^/]+)\/review$/);
         if (req.method !== 'GET' || !getMatch) {
-          return next()
+          return next();
         }
 
-        const imdbID = decodeURIComponent(getMatch[1])
+        const imdbID = decodeURIComponent(getMatch[1]);
 
-        let reviewsDB: Record<string, { User: string; Rating: number }[]> = {}
+        let moviesDB: { imdbID: string, Reviews?: { User: string; Rating: number }[] }[] = [];
         try {
-          const txt = await fs.readFile(reviewsPath, 'utf-8')
-          reviewsDB = JSON.parse(txt)
+          const txt = await fs.readFile(moviesPath, 'utf-8');
+          moviesDB = JSON.parse(txt);
+        } catch {
+          moviesDB = [];
         }
-        catch {
-          reviewsDB = {}
-        }
 
-        const reviews = reviewsDB[imdbID] || []
+        const movie = moviesDB.find(movie => movie.imdbID === imdbID);
+        const reviews = movie ? movie.Reviews || [] : [];
 
-        res.statusCode = 200
-        res.setHeader('Content-Type', 'application/json')
-        return res.end(JSON.stringify(reviews))
-      })
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        return res.end(JSON.stringify(reviews));
+      });
 
-      // POST /api/movie/:id/review append to reviewsDB.json
+      // GET /api/user/:username/reviews return all reviews made by user
       server.middlewares.use(async (req, res, next) => {
-        const postMatch = req.url?.match(/^\/api\/movie\/([^/]+)\/review$/)
+        const getMatch = req.url?.match(/^\/api\/user\/([^/]+)\/reviews$/);
+        if (req.method !== 'GET' || !getMatch) {
+          return next();
+        }
+
+        const username = decodeURIComponent(getMatch[1]);
+
+        let moviesDB: { title: string, Title: string, Reviews?: { User: string; Rating: number }[] }[] = [];
+        try {
+          const txt = await fs.readFile(moviesPath, 'utf-8');
+          moviesDB = JSON.parse(txt);
+        } catch {
+          moviesDB = [];
+        }
+
+        const userReviews = [];
+        moviesDB.forEach(movie => {
+          movie.Reviews?.forEach(review => {
+            if (review.User === username) {
+              userReviews.push({ Title: movie.Title, ...review });
+            }
+          });
+        });
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        console.log(userReviews)
+        return res.end(JSON.stringify(userReviews));
+      });
+
+      // POST /api/movie/:id/review append to movieDB.json
+      server.middlewares.use(async (req, res, next) => {
+        const postMatch = req.url?.match(/^\/api\/movie\/([^/]+)\/review$/);
         if (req.method !== 'POST' || !postMatch) {
-          return next()
+          return next();
         }
 
-        const imdbID = decodeURIComponent(postMatch[1])
+        const imdbID = decodeURIComponent(postMatch[1]);
+        const { User, Rating, Review } = (req as any).body || {};
 
-        const { Title, User, Rating } = (req as any).body || {}
-        console.log(req.body)
-
-        // Simple validation. Todo: Add check for duplicate User's (only 1 review/user for same movie)
-        // This logic doenst check if Title is matching to imdbID, vulnerable to bad records.
-        if (
-          typeof Title !== 'string' ||
-          typeof User !== 'string' ||
-          typeof Rating   !== 'number' ||
-          Rating < 0 || Rating > 10
-        ) {
-          res.statusCode = 400
-          return res.end('Invalid payload')
+        if (typeof User !== 'string' || typeof Review !== 'string' || typeof Rating !== 'number' || Rating < 0 || Rating > 10) {
+          res.statusCode = 400;
+          return res.end('Invalid payload');
         }
 
-        let reviewsDB: Record<string, { Title: string; User: string; Rating: number }[]> = {}
+        let moviesDB: Movie[] = [];
         try {
-          const txt = await fs.readFile(reviewsPath, 'utf-8')
-          reviewsDB = JSON.parse(txt)
-        } catch (e) {
-          reviewsDB = {}
+          const txt = await fs.readFile(moviesPath, 'utf-8');
+          moviesDB = JSON.parse(txt) as Movie[];
+        } catch {
+          moviesDB = [];
         }
 
-        reviewsDB[imdbID] = reviewsDB[imdbID] || []
-        reviewsDB[imdbID].push({ Title, User, Rating })
+        const movieIndex = moviesDB.findIndex(movie => movie.imdbID === imdbID);
+        if (movieIndex === -1) {
+          res.statusCode = 404;
+          return res.end('Movie not found');
+        }
+
+        const movie = moviesDB[movieIndex];
+        movie.Reviews = movie.Reviews || [];
+
+        // Check for existing user review
+        if (movie.Reviews.some(review => review.User === User)) {
+          res.statusCode = 409;
+          return res.end('User has already reviewed this movie');
+        }
+
+        movie.Reviews.push({ User, Rating });
 
         try {
-          await fs.writeFile(
-            reviewsPath,
-            JSON.stringify(reviewsDB, null, 2),
-            'utf-8'
-          )
+          await fs.writeFile(moviesPath, JSON.stringify(moviesDB, null, 2), 'utf-8');
         } catch (e: any) {
-          console.error('Failed to write reviewsDB.json:', e)
-          res.statusCode = 500
-          return res.end('Could not save review')
+          console.error('Failed to write moviesDB.json:', e);
+          res.statusCode = 500;
+          return res.end('Could not save review');
         }
 
-        res.statusCode = 204
-        return res.end()
-      })
+        res.statusCode = 204;
+        return res.end();
+      });
 
-      // GET  /api/movie/:imdbID proxy to OMDB, then append localRatings
+      // GET  /api/movie/:imdbID detailed movie information from OMDB
       server.middlewares.use(async (req, res, next) => {
-        console.log("run")
         if (!req.url?.startsWith('/api/movie/') || req.method !== 'GET') {
           return next()
         }
