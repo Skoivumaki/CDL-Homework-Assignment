@@ -3,7 +3,7 @@ import { ref, watch, type Ref } from 'vue'
 export function useFetch<T>(url: string | Ref<string>) {
   const data    = ref<T | null>(null)
   const loading = ref(false)
-  const error   = ref<Error | null>(null)
+  const error   = ref<Error | null | unknown>(null)
 
   // Watch for URL changes and refetch
   watch(
@@ -16,7 +16,7 @@ export function useFetch<T>(url: string | Ref<string>) {
         const res = await fetch(u)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         data.value = (await res.json()) as T
-      } catch (e: any) {
+      } catch (e: unknown) {
         error.value = e
       } finally {
         loading.value = false
