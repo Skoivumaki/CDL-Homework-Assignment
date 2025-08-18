@@ -6,6 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import path from 'node:path'
 import fs          from 'fs/promises'
 import bodyParser from 'body-parser'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
 interface Movie {
@@ -27,6 +28,7 @@ interface Movie {
   Metascore?: string
   imdbRating?: string
   imdbVotes?: string
+  imdbID?: string
   Type?: string
   DVD?: string
   BoxOffice?: string
@@ -39,6 +41,7 @@ interface Movie {
   const omdbKey = env.OMDB_KEY
 
   const localRatings: Record<string, { User: string; Rating: number }[]> = {}
+  const moviesDB: Record<string, any> = {}
   const moviesPath = path.resolve(process.cwd(), 'public', 'movieDB.json')
 
   const omdbProxyPlugin = (): Plugin => ({
@@ -136,13 +139,12 @@ interface Movie {
         const movie = moviesDB[movieIndex];
         movie.Reviews = movie.Reviews || [];
 
-        // Check for existing user review
         if (movie.Reviews.some(review => review.User === User)) {
           res.statusCode = 409;
           return res.end('User has already reviewed this movie');
         }
 
-        movie.Reviews.push({ User, Rating });
+        movie.Reviews.push({ User, Rating, Review });
 
         try {
           await fs.writeFile(moviesPath, JSON.stringify(moviesDB, null, 2), 'utf-8');
@@ -177,12 +179,75 @@ interface Movie {
           )
           const json = await omdbRes.json()
 
-          ;(json as any).localRatings = localRatings[imdbID] || []
-
           res.setHeader('Content-Type', 'application/json')
           return res.end(JSON.stringify(json))
         }
         catch (err: any) {
+          res.statusCode = 502
+          return res.end(JSON.stringify({ error: err.message }))
+        }
+      })
+
+      // POST add movie to database
+      server.middlewares.use(async (req, res, next) => {
+        const match = req.url?.match(/^\/api\/movie\/([^/]+)$/)
+
+        if (req.method !== 'POST' || !match) {
+          return next()
+        }
+
+        const imdbID = decodeURIComponent(match[1]).trim()
+
+        if (!imdbID) {
+          res.statusCode = 400
+          return res.end(JSON.stringify({ error: 'Missing imdbID in params' }))
+        }
+
+        if (!omdbKey) {
+          res.statusCode = 500
+          return res.end(JSON.stringify({ error: 'OMDB_KEY not set' }))
+        }
+
+        try {
+          let moviesDB: Movie[] = []
+          try {
+            const txt = await fs.readFile(moviesPath, 'utf-8')
+            moviesDB = JSON.parse(txt) as Movie[]
+          } catch {
+            moviesDB = []
+          }
+
+          let movie = moviesDB.find((m) => m.imdbID === imdbID)
+          if (movie) {
+            res.setHeader('Content-Type', 'application/json')
+            return res.end(JSON.stringify(movie))
+          }
+
+          const omdbRes = await fetch(
+            `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`
+          )
+          const json = (await omdbRes.json()) as Movie
+
+          if (!json || json.Response === 'False') {
+            res.statusCode = 404
+            return res.end(JSON.stringify({ error: 'Movie not found in OMDb' }))
+          }
+
+          movie = { ...json, imdbID, Reviews: [] }
+          moviesDB.push(movie)
+
+          try {
+            await fs.writeFile(moviesPath, JSON.stringify(moviesDB, null, 2), 'utf-8')
+          } catch (e: any) {
+            console.error('Failed to write moviesDB.json:', e)
+            res.statusCode = 500
+            return res.end('Could not save movie')
+          }
+
+          res.setHeader('Content-Type', 'application/json')
+          res.statusCode = 201
+          return res.end(JSON.stringify(movie))
+        } catch (err: any) {
           res.statusCode = 502
           return res.end(JSON.stringify({ error: err.message }))
         }
@@ -195,7 +260,8 @@ interface Movie {
       vue(),
       vueJsx(),
       vueDevTools(),
-      omdbProxyPlugin()
+      omdbProxyPlugin(),
+      tailwindcss()
     ],
     resolve: {
       alias: {
