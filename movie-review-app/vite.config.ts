@@ -7,41 +7,14 @@ import path from 'node:path'
 import fs          from 'fs/promises'
 import bodyParser from 'body-parser'
 import tailwindcss from '@tailwindcss/vite'
+import type { Movie } from './src/types/movie'
+import type { Review } from './src/types/review'
 
 export default defineConfig(({ mode }) => {
-interface Movie {
-  Title: string
-  Year: string
-  Rated?: string
-  Released?: string
-  Runtime?: string
-  Genre?: string
-  Director?: string
-  Writer?: string
-  Actors?: string
-  Plot?: string
-  Language?: string
-  Country?: string
-  Awards?: string
-  Poster?: string
-  Reviews?: { User: string; Review: string; Rating: number }[];
-  Metascore?: string
-  imdbRating?: string
-  imdbVotes?: string
-  imdbID?: string
-  Type?: string
-  DVD?: string
-  BoxOffice?: string
-  Production?: string
-  Website?: string
-  Response?: string
-}
+
   // Declaring "API" prototype endpoints. Todo: Run in Express instead. Needs types.
   const env = loadEnv(mode, process.cwd(), '')
   const omdbKey = env.OMDB_KEY
-
-  const localRatings: Record<string, { User: string; Rating: number }[]> = {}
-  const moviesDB: Record<string, any> = {}
   const moviesPath = path.resolve(process.cwd(), 'public', 'movieDB.json')
 
   const omdbProxyPlugin = (): Plugin => ({
@@ -84,7 +57,7 @@ interface Movie {
 
         const username = decodeURIComponent(getMatch[1]);
 
-        let moviesDB: { title: string, Title: string, Reviews?: { User: string; Rating: number }[] }[] = [];
+        let moviesDB: { title: string, Title: string, Review: string, Reviews?: { User: string; Rating: number; Review: string }[] }[] = [];
         try {
           const txt = await fs.readFile(moviesPath, 'utf-8');
           moviesDB = JSON.parse(txt);
@@ -92,18 +65,17 @@ interface Movie {
           moviesDB = [];
         }
 
-        const userReviews = [];
+        const userReviews: Review[] = [];
         moviesDB.forEach(movie => {
           movie.Reviews?.forEach(review => {
             if (review.User === username) {
-              userReviews.push({ Title: movie.Title, ...review });
+              userReviews.push({ Title: movie.Title, User: review.User, Rating: review.Rating, Review: review.Review });
             }
           });
         });
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        console.log(userReviews)
         return res.end(JSON.stringify(userReviews));
       });
 
@@ -113,8 +85,8 @@ interface Movie {
         if (req.method !== 'POST' || !postMatch) {
           return next();
         }
-
         const imdbID = decodeURIComponent(postMatch[1]);
+        // Fix req parsing
         const { User, Rating, Review } = (req as any).body || {};
 
         if (typeof User !== 'string' || typeof Review !== 'string' || typeof Rating !== 'number' || Rating < 0 || Rating > 10) {
@@ -148,7 +120,7 @@ interface Movie {
 
         try {
           await fs.writeFile(moviesPath, JSON.stringify(moviesDB, null, 2), 'utf-8');
-        } catch (e: any) {
+        } catch (e: unknown) {
           console.error('Failed to write moviesDB.json:', e);
           res.statusCode = 500;
           return res.end('Could not save review');
@@ -182,9 +154,9 @@ interface Movie {
           res.setHeader('Content-Type', 'application/json')
           return res.end(JSON.stringify(json))
         }
-        catch (err: any) {
+        catch (err: unknown) {
           res.statusCode = 502
-          return res.end(JSON.stringify({ error: err.message }))
+          return res.end(JSON.stringify({ error: (err as Error).message }))
         }
       })
 
@@ -238,7 +210,7 @@ interface Movie {
 
           try {
             await fs.writeFile(moviesPath, JSON.stringify(moviesDB, null, 2), 'utf-8')
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.error('Failed to write moviesDB.json:', e)
             res.statusCode = 500
             return res.end('Could not save movie')
@@ -247,9 +219,9 @@ interface Movie {
           res.setHeader('Content-Type', 'application/json')
           res.statusCode = 201
           return res.end(JSON.stringify(movie))
-        } catch (err: any) {
+        } catch (err: unknown) {
           res.statusCode = 502
-          return res.end(JSON.stringify({ error: err.message }))
+          return res.end(JSON.stringify({ error: (err as Error).message }))
         }
       })
     }
