@@ -189,7 +189,13 @@
     "Production": "N/A",
     "Website": "N/A",
     "Response": "True",
-    "Reviews": []
+    "Reviews": [
+      {
+        "User": "Mandoliini",
+        "Rating": 5,
+        "Review": "Christopher Nolan's The Dark Knight is a gripping and intense superhero film that transcends the genre. Heath Ledger's mesmerizing performance as the Joker is both haunting and iconic. Christian Bale returns as Batman, facing moral dilemmas and chaos in Gotham City. With a smart script, breathtaking action sequences, and a compelling score, this film redefines the superhero narrative, making it a truly unforgettable cinematic experience."
+      }
+    ]
   },
   {
     "Title": "Pulp Fiction",
