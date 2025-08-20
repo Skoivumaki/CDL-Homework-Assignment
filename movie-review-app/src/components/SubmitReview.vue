@@ -44,10 +44,10 @@ export default defineComponent({
 
 <!-- Might still change the design, not sure if it looks good -->
 <template>
-  <div class="flex flex-col gap-4 bg-secondary rounded-xl p-2 mt-5">
+  <div class="flex flex-col gap-4 bg-secondary rounded-xl p-2 mt-5 h-60">
     <form @submit.prevent="handleSubmit" class="flex flex-col gap-3">
       <div class="flex flex-col items-center justify-center gap-2">
-        <h2 class="mr-2 font-medium">What would you rate the movie?</h2>
+        <h2 class="mr-2 font-medium truncate">What would you rate the movie?</h2>
         <div class="flex">
           <label
             v-for="n in 5"
