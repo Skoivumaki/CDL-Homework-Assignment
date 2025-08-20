@@ -10,7 +10,6 @@ const { data: reviewData, loading, error } = useFetch<Review[]>(
   computed(() => props.imdbID ? `/api/movie/${props.imdbID}/review` : '')
 )
 
-
 const userReviews = ref<Review[] | null>(null);
 const userLoading = ref(false);
 const userError = ref<string | null>(null);
@@ -36,8 +35,8 @@ async function fetchUserReviews(username: string) {
 
 function closeUserReviews() {
   setTimeout(() => {
-  activeUser.value = null
-  userReviews.value = null;
+    activeUser.value = null
+    userReviews.value = null;
   }, 500);
 }
 
@@ -50,14 +49,12 @@ function closeUserReviews() {
     <template v-else-if="reviewData">
       <div class="bg-secondary rounded-xl p-2 md-5" v-for="(review, index) in reviewData" :key="index">
         <div class="flex flex-row justify-between">
-          <button @click="fetchUserReviews(review.User)"><h2 class="underline">{{ review.User }}</h2></button>
+          <button @click="fetchUserReviews(review.User)">
+            <h2 class="underline">{{ review.User }}</h2>
+          </button>
           <div class="flex items-center">
-            <label
-              v-for="n in 5"
-              :key="n"
-              class="cursor-pointer transition-all duration-500"
-              :class="review.Rating >= n ? 'text-yellow-400' : 'text-primary'"
-            >
+            <label v-for="n in 5" :key="n" class="cursor-pointer transition-all duration-500"
+              :class="review.Rating >= n ? 'text-yellow-400' : 'text-primary'">
               <span class="text-3xl">★</span>
             </label>
           </div>
@@ -68,11 +65,8 @@ function closeUserReviews() {
           </p>
         </div>
         <!-- Todo: Move to a separate component -->
-        <div
-          v-if="activeUser === review.User"
-          v-on-click-outside="closeUserReviews"
-          class="flex flex-col gap-4 bg-primary rounded-xl p-2 mt-5"
-        >
+        <div v-if="activeUser === review.User" v-on-click-outside="closeUserReviews"
+          class="flex flex-col gap-4 bg-primary rounded-xl p-2 mt-5">
           <div class="text-highlight text-center border-b">Other reviews by {{ review.User }}</div>
           <div v-if="userLoading" class="status">Loading…</div>
           <div v-else-if="userError" class="status error">{{ userError }}</div>
@@ -81,17 +75,15 @@ function closeUserReviews() {
               <div class="flex flex-row justify-between">
                 <button class="">{{ review.Title }}</button>
                 <div class="flex items-center">
-                  <label
-                    v-for="n in 5"
-                    :key="n"
-                    class="cursor-pointer transition-all duration-500"
-                    :class="review.Rating >= n ? 'text-yellow-400' : 'text-secondary'"
-                  >
+                  <label v-for="n in 5" :key="n" class="cursor-pointer transition-all duration-500"
+                    :class="review.Rating >= n ? 'text-yellow-400' : 'text-secondary'">
                     <span class="text-3xl">★</span>
                   </label>
                 </div>
               </div>
-              <div><p>{{ review.Review }}</p></div>
+              <div>
+                <p>{{ review.Review }}</p>
+              </div>
             </h2>
             <h2 v-if="userReviews.length == 0">No reviews found</h2>
           </template>

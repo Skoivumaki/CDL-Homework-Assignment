@@ -49,40 +49,25 @@ export default defineComponent({
       <div class="flex flex-col items-center justify-center gap-2">
         <h2 class="mr-2 font-medium truncate">What would you rate the movie?</h2>
         <div class="flex">
-          <label
-            v-for="n in 5"
-            :key="n"
-            class="cursor-pointer transition-all duration-500 hover:text-yellow-400"
-            :class="rating >= n ? 'text-yellow-400' : 'text-primary'"
-          >
-            <input
-              v-model="rating"
-              type="radio"
-              class="hidden"
-              :value="n"
-              required
-            />
+          <label v-for="n in 5" :key="n" class="cursor-pointer transition-all duration-500 hover:text-yellow-400"
+            :class="rating >= n ? 'text-yellow-400' : 'text-primary'">
+            <input v-model="rating" type="radio" class="hidden" :value="n" required />
             <span class="text-3xl">★</span>
           </label>
         </div>
       </div>
 
       <label class="flex flex-col">
-        <textarea v-model="review"
-          type="text"
-          placeholder="Tell us your thoughts about the movie..."
-          class="border bg-white p-2 rounded w-full"
-          required>
+        <textarea v-model="review" type="text" placeholder="Tell us your thoughts about the movie..."
+          class="border bg-white p-2 rounded w-full" required>
         </textarea>
       </label>
 
       <p class="text-red-500 text-sm" v-if="error">{{ error }}</p>
 
-      <button
-        type="submit"
+      <button type="submit"
         class="bg-primary border-solid p-2 text-white rounded-lg text-lg duration-200 hover:outline-2 hover:outline-offset-2 hover:outline-highlight focus:bg-highlight"
-        :disabled="loading"
-      >
+        :disabled="loading">
         Submit
       </button>
       <div v-if="loading" class="text-highlight">Submitting...</div>

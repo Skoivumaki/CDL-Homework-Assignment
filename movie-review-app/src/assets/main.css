@@ -1,83 +1,81 @@
 @import './base.css';
-@import "tailwindcss";
+@import 'tailwindcss';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @theme {
   --color-primary: #222831;
-  --color-secondary: #393E46;
-  --color-highlight: #FFD369;
-  --color-white: #EEEEEE;
-  --color-text: #EEEEEE;
-  --color-text-alt: #FFFFFF;
-  --color-text-light: #B4B4B4;
+  --color-secondary: #393e46;
+  --color-highlight: #ffd369;
+  --color-white: #eeeeee;
+  --color-text: #eeeeee;
+  --color-text-alt: #ffffff;
+  --color-text-light: #b4b4b4;
 }
 
 @layer components {
-    p {
-        font-size: medium;
-        color: var(--color-text);
-        font-weight: normal;
-    }
+  p {
+    font-size: medium;
+    color: var(--color-text);
+    font-weight: normal;
+  }
 
-    h1 {
-        font-size: xx-large;
-        font-weight: bold;
-        color: var(--color-text);
-    }
+  h1 {
+    font-size: xx-large;
+    font-weight: bold;
+    color: var(--color-text);
+  }
 
-    h2 {
-        font-size: large;
-        font-weight: bold;
-        color: var(--color-highlight);
-    }
+  h2 {
+    font-size: large;
+    font-weight: bold;
+    color: var(--color-highlight);
+  }
 
-    input {
-        @apply transition-all duration-200 p-2 w-full max-w-md mb-4 focus:outline-2 focus:outline-offset-2 focus:outline-highlight;
-    }
+  input {
+    @apply transition-all duration-200 p-2 w-full max-w-md mb-4 focus:outline-2 focus:outline-offset-2 focus:outline-highlight;
+  }
 
-    textarea {
-        @apply transition-all duration-200 p-2 w-full mb-4 focus:outline-2 focus:outline-offset-2 focus:outline-highlight;
-    }
+  textarea {
+    @apply transition-all duration-200 p-2 w-full mb-4 focus:outline-2 focus:outline-offset-2 focus:outline-highlight;
+  }
 
-    strong {
-        color: var(--color-highlight) !important;
-    }
+  strong {
+    color: var(--color-highlight) !important;
+  }
 
-    body {
-        @apply bg-secondary;
-    }
+  body {
+    @apply bg-secondary;
+  }
 
-    /* Smooth expand and close transition (height)*/
-    .transition-enter-active,
-    .transition-leave-active {
+  /* Smooth expand and close transition (height)*/
+  .transition-enter-active,
+  .transition-leave-active {
     transition: max-height 0.5s ease;
     overflow: hidden;
-    }
-    .transition-enter-from,
-    .transition-leave-to {
+  }
+  .transition-enter-from,
+  .transition-leave-to {
     max-height: 0;
-    }
-    .transition-enter-to,
-    .transition-leave-from {
+  }
+  .transition-enter-to,
+  .transition-leave-from {
     max-height: 1000px;
-    }
+  }
 
-    /* Smooth expand and close transition (width)*/
-    .transitionWidth-enter-active,
-    .transitionWidth-leave-active {
+  /* Smooth expand and close transition (width)*/
+  .transitionWidth-enter-active,
+  .transitionWidth-leave-active {
     transition: max-width 0.5s ease;
     overflow: hidden;
-    }
-    .transitionWidth-enter-from,
-    .transitionWidth-leave-to {
+  }
+  .transitionWidth-enter-from,
+  .transitionWidth-leave-to {
     max-width: 0;
-    }
-    .transitionWidth-enter-to,
-    .transitionWidth-leave-from {
+  }
+  .transitionWidth-enter-to,
+  .transitionWidth-leave-from {
     max-width: 1000px;
-    }
-
+  }
 }
-
