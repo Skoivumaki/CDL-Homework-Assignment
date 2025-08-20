@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { ref, watchEffect, computed } from 'vue'
 import ViewDetails from './components/ViewDetails.vue'
+import type { Movie } from '@/types/movie'
 
 const MOVIES_URL = '/movieDB.json'
-
-interface Movie {
-  imdbID: string
-  Title: string
-  Director?: string
-  Year?: number | string
-  Genre?: string
-}
 
 const movies       = ref<Movie[]>([])
 const searchTerm   = ref('')
@@ -77,14 +70,14 @@ function closeDetails() {
           class="flex mb-2 transition-transform duration-500"
         >
           <button
-            @click="openDetails(movie.imdbID)"
+            @click="openDetails(movie.imdbID || 'tt0111161')"
             class="bg-primary hover:bg-highlight duration-200 shadow-md text-white font-bold p-3 rounded min-w-60"
           >
             <div>
               <strong>{{ movie.Title }}</strong>
               <span v-if="movie.Year"> ({{ movie.Year }})</span>
-              <div v-if="movie.Director">Director: {{ movie.Director }}</div>
-              <div v-if="movie.Genre">Genre: {{ movie.Genre }}</div>
+              <p v-if="movie.Director">Director: {{ movie.Director }}</p>
+              <p v-if="movie.Genre">Genre: {{ movie.Genre }}</p>
               <div class="flex aspect-w-2 aspect-h-3 w-full max-w-2xs bg-secondary items-center text-xs">
                 <img src="@/assets/image.png" alt="Film Icon" class="w-full" />
               </div>
@@ -92,20 +85,19 @@ function closeDetails() {
           </button>
         </li>
       </ul>
-      <div
-        @click.self="closeDetails"
-        :class="[
-          'transition-all duration-500 overflow-hidden sticky top-0',
-          isViewVisible ? 'w-full h-fit' : 'w-0 max-h-100 h-fit s'
-        ]"
-      >
-        <ViewDetails
-          v-if="selectedMovieID"
-          :imdbID="selectedMovieID"
-          @close="closeDetails"
-          class="w-full"
-        />
-      </div>
+      <Transition name="transitionWidth">
+        <div
+          v-if="isViewVisible"
+          @click.self="closeDetails"
+          class="overflow-hidden sticky top-0 w-full h-screen"
+        >
+          <ViewDetails
+            :imdbID="selectedMovieID"
+            @close="closeDetails"
+            class="w-full"
+          />
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
