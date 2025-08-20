@@ -37,7 +37,14 @@
     "BoxOffice": "$28,767,189",
     "Production": "N/A",
     "Website": "N/A",
-    "Response": "True"
+    "Response": "True",
+    "Reviews": [
+      {
+        "User": "Mandoliini",
+        "Rating": 5,
+        "Review": "he Shawshank Redemption is a masterful tale of hope and friendship. Tim Robbins and Morgan Freeman deliver unforgettable performances as prisoners Andy and Red. The film combines powerful storytelling and stunning cinematography to create a timeless classic that continues to resonate with audiences."
+      }
+    ]
   },
   {
     "Title": "Blade Runner 2049",
@@ -80,8 +87,9 @@
     "Response": "True",
     "Reviews": [
       {
-        "User": "se",
-        "Rating": 3
+        "User": "Not a robot",
+        "Rating": 3,
+        "Review": "test"
       }
     ]
   },
@@ -126,8 +134,19 @@
     "Response": "True",
     "Reviews": [
       {
-        "User": "se",
-        "Rating": 4
+        "User": "Not a robot",
+        "Rating": 4,
+        "Review": "Francis Ford Coppola’s The Godfather is a masterclass in storytelling and atmosphere. It blends crime, family drama, and Shakespearean tragedy into a rich portrait of power and loyalty. The performances, especially by Marlon Brando and Al Pacino, are captivating, and the pacing makes its long runtime feel purposeful rather than excessive. More than a gangster film, it’s a meditation on legacy and the cost of ambition — one that still feels timeless today."
+      },
+      {
+        "User": "Godfather",
+        "Rating": 5,
+        "Review": "The Godfather is a powerful and beautifully crafted film that redefined the crime genre. With unforgettable performances from Marlon Brando and Al Pacino, it balances family loyalty, tragedy, and the cost of power in a way that still feels timeless. A masterpiece of storytelling and atmosphere."
+      },
+      {
+        "User": "Mandoliini",
+        "Rating": 4,
+        "Review": "The Godfather is an unforgettable epic that blends crime and family drama with incredible depth. Its gripping story, masterful direction, and iconic performances make it a cornerstone of cinema that remains just as impactful today."
       }
     ]
   },
