@@ -30,10 +30,10 @@ export function useGetUser() {
   const userData = ref('');
 
   // This could be a nicer vue component instead of just prompt.
-  const promptForUserName = () => {
+  const promptForUserName = (): Promise<string> => {
     return new Promise((resolve) => {
       const userName = prompt('Please enter your name:') || '';
-      resolve(userName || '');
+      resolve(userName);
     });
   };
 
