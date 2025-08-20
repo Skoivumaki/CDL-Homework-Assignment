@@ -6,7 +6,7 @@ defineProps<{
 }>();
 
 </script>
-
+<!-- Todo: Hover effect makes title unreadable. Also maybe ratings should be shown here too? -->
 <template>
     <div>
         <strong>{{ movie.Title }}</strong>

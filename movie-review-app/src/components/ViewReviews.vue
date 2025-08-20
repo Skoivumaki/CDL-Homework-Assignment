@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 import type { Review } from '@/types/review'
 
+// For consistancy with other components props should be just defineProps
 const props = defineProps<{ imdbID: string }>()
 
 const { data: reviewData, loading, error } = useFetch<Review[]>(
@@ -64,7 +65,7 @@ function closeUserReviews() {
             {{ review.Review }}
           </p>
         </div>
-        <!-- Todo: Move to a separate component -->
+        <!-- Todo: Move to a separate component. Also the active movies review shouldn't be shown here -->
         <div v-if="activeUser === review.User" v-on-click-outside="closeUserReviews"
           class="flex flex-col gap-4 bg-primary rounded-xl p-2 mt-5">
           <div class="text-highlight text-center border-b">Other reviews by {{ review.User }}</div>
