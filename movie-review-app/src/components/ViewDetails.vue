@@ -1,19 +1,37 @@
 <script setup lang="ts">
 import { useFetch } from '@/composables/useFetch'
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import ViewReviews from './ViewReviews.vue'
 import SubmitReview from './SubmitReview.vue'
 import { vOnClickOutside } from '@vueuse/components'
 import type { Movie } from '@/types/movie'
+import type { Review } from '@/types/review'
 
 const props = defineProps<{ imdbID: string }>()
-const emit  = defineEmits(['close'])
+const emit = defineEmits(['close'])
 const selectedMovieID = ref('')
 const isViewVisible = ref(false);
 
 const { data: movieData, loading, error } = useFetch<Movie>(
   computed(() => props.imdbID ? `/api/movie/${props.imdbID}` : '')
 )
+
+const { data: reviewData, loading: loadingReview } = useFetch<Review[]>(
+  computed(() => props.imdbID ? `/api/movie/${props.imdbID}/review` : '')
+)
+
+const localRating = ref(0)
+
+watchEffect(() => {
+  if (!loadingReview.value && reviewData.value) {
+    if (reviewData.value.length === 0) {
+      localRating.value = 0
+    } else {
+      const totalRating = reviewData.value.reduce((sum, review) => sum + review.Rating, 0)
+      localRating.value = totalRating / reviewData.value.length
+    }
+  }
+})
 
 function onBack() {
   emit('close')
@@ -37,9 +55,8 @@ function closeReviews() {
   <div class="flex flex-col w-full h-full bg-primary">
     <button
       class="bg-highlight border-solid p-2 w-30 text-primary rounded-br-lg text-lg cursor-pointer relative transition duration-200 hover:bg-secondary"
-      @click="onBack"
-    >
-    Close
+      @click="onBack">
+      Close
     </button>
     <div class="p-2 flex-row h-fit flex-shrink-0">
       <div v-if="loading" class="text-highlight text-center">Loading…</div>
@@ -52,41 +69,26 @@ function closeReviews() {
           <p><strong>Plot:</strong> {{ movieData.Plot }}</p>
           <p><strong>Actors:</strong> {{ movieData.Actors }}</p>
           <p><strong>IMDB Rating:</strong> {{ movieData.imdbRating }} / 10</p>
+          <p><strong>Movie Review App Rating:</strong> {{ localRating.toFixed(1) }} / 5</p>
         </div>
-        <SubmitReview
-          :imdbID=imdbID
-          :Title=movieData.Title
-        />
+        <SubmitReview :imdbID=imdbID :Title=movieData.Title />
       </template>
     </div>
     <div class="py-2 w-40 flex-shrink-0">
-      <button
-        v-if="!isViewVisible"
-        @click="openReviews(props.imdbID)"
-        class="bg-highlight p-2 text-primary rounded-br-lg text-lg hover:bg-secondary"
-      >
+      <button v-if="!isViewVisible" @click="openReviews(props.imdbID)"
+        class="bg-highlight p-2 text-primary rounded-br-lg text-lg hover:bg-secondary">
         View Reviews
       </button>
-      <button
-        v-if="isViewVisible"
-        @click="closeReviews"
-        class="bg-highlight p-2 text-primary rounded-br-lg text-lg hover:bg-secondary"
-      >
+      <button v-if="isViewVisible" @click="closeReviews"
+        class="bg-highlight p-2 text-primary rounded-br-lg text-lg hover:bg-secondary">
         Hide Reviews
       </button>
     </div>
     <div class="flex-1 overflow-hidden">
       <Transition name="transition">
-        <div
-          v-if="isViewVisible"
-          v-on-click-outside="closeReviews"
-          class="px-2 w-full h-full overflow-y-auto overscroll-contain"
-        >
-          <ViewReviews
-            :imdbID="selectedMovieID"
-            @hide="closeReviews"
-            class="w-full"
-          />
+        <div v-if="isViewVisible" v-on-click-outside="closeReviews"
+          class="px-2 w-full h-full overflow-y-auto overscroll-contain">
+          <ViewReviews :imdbID="selectedMovieID" @hide="closeReviews" class="w-full" />
         </div>
       </Transition>
     </div>
