@@ -4,11 +4,10 @@ import { computed, ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 import type { Review } from '@/types/review'
 
-// For consistancy with other components props should be just defineProps
 const props = defineProps<{ imdbID: string }>()
 
 const { data: reviewData, loading, error } = useFetch<Review[]>(
-  computed(() => props.imdbID ? `/api/movie/${props.imdbID}/review` : '')
+  computed(() => props.imdbID ? `/api/reviews/${props.imdbID}` : '')
 )
 
 const userReviews = ref<Review[] | null>(null);
@@ -22,7 +21,7 @@ async function fetchUserReviews(username: string) {
   activeUser.value = username
   userError.value = null;
   try {
-    const response = await fetch(`/api/user/${encodeURIComponent(username)}/reviews`);
+    const response = await fetch(`/api/reviews/user/${username}`);
     if (!response.ok) {
       throw new Error(response.statusText);
     }

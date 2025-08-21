@@ -9,7 +9,7 @@ const MOVIES_URL = '/movieDB.json'
 const movies = ref<Movie[]>([])
 const searchTerm = ref('')
 
-// Load mock list, to limit API calls and avoid hitting the free OMDB API rate limit. However details are still fetched from the API.
+// Load mock list, to limit API calls and avoid hitting the free OMDB API rate limit. However details are still fetched from the API to keep them updated with the latest information.
 watchEffect(async () => {
   try {
     const res = await fetch(MOVIES_URL)

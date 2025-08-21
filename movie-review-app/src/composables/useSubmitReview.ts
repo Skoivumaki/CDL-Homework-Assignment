@@ -9,7 +9,7 @@ export function useSubmitReview(imdbID: string) {
     error.value = null
 
     try {
-      const response = await fetch(`/api/movie/${imdbID}/review`, {
+      const response = await fetch(`/api/reviews/post/${imdbID}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
