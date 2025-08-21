@@ -15,7 +15,7 @@ Users can:
 - Built with **Vue.js**.
 - Using tailwind CSS.
 
-Note: Middleware endpoints were built with help of AI, (see file `vite.config.ts`) which aren’t suitable for production. I kept it simple and self-contained in a single instance with no external online database. There are however files for serverless functions for use with Vercel, which I couldn't finish in time.
+Note: Middleware endpoints were built with help of AI, (see file `vite.config.ts`) which aren’t suitable for production. I kept it simple and self-contained in a single instance with no external online database. There are however serverless functions files for use with Vercel, which I couldn't finish in time.
 
 Estimated time spent on project: 18 hours  
 
