@@ -17,6 +17,7 @@ export interface Movie {
   imdbRating?: string
   imdbVotes?: string
   imdbID?: string
+  averageRating?: number | string
   Reviews?: { User: string; Rating: number; Review: string }[]
   Type?: string
   DVD?: string
