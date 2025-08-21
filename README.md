@@ -12,8 +12,7 @@ Users can:
 
 ## Technical Notes
 
-- Built with **Vue.js**.
-- Using tailwind CSS.
+- Built with **Vue.js** using Tailwind.
 
 Note: Middleware endpoints were built with help of AI, (see file `vite.config.ts`) which aren’t suitable for production. I kept it simple and self-contained in a single instance with no external online database. There are however serverless functions files for use with Vercel, which I couldn't finish in time.
 
