@@ -2,14 +2,14 @@
 import { ref, watchEffect, computed } from 'vue'
 import type { Movie } from '@/types/movie'
 import TopNav from './components/TopNav.vue'
-import MovieTiles from './components/MovieGrid.vue'
+import MovieGrid from './components/MovieGrid.vue'
 
 const MOVIES_URL = '/movieDB.json'
 
 const movies = ref<Movie[]>([])
 const searchTerm = ref('')
 
-// Load mock list (omdb api has limited usage for free)
+// Load mock list, to limit API calls and avoid hitting the free OMDB API rate limit. However details are still fetched from the API.
 watchEffect(async () => {
   try {
     const res = await fetch(MOVIES_URL)
@@ -35,6 +35,6 @@ const filteredMovies = computed(() => {
 <template>
   <div class="h-full bg-secondary">
     <TopNav v-model:searchTerm="searchTerm" :movies="movies" :filteredMovies="filteredMovies" />
-    <MovieTiles :filteredMovies="filteredMovies" />
+    <MovieGrid :filteredMovies="filteredMovies" />
   </div>
 </template>
