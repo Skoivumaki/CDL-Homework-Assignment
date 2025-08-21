@@ -20,7 +20,7 @@ Estimated time spent on project: 18 hours
 
 ---
 
-## 🚀 Project Setup
+## Project Setup
 
 ```sh
 cd movie-review-app
