@@ -1,39 +1,40 @@
 # Movie Review App
 
-This template should help get you started developing with Vue 3 in Vite.
+A movie review application built with **Vue.js**.
+It integrates with the [OMDb API](https://www.omdbapi.com/) to fetch additional details about movies (via IMDB data).
 
-## Recommended IDE Setup
+Users can:
+- Post reviews for movies (with basic validation to discard multiple reviews under same name)
+- View reviews from others
+- Browse all users reviews across the site
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Type Support for `.vue` Imports in TS
+## Technical Notes
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Built with **Vue.js**.
+- Using tailwind CSS.
 
-## Customize configuration
+Note: Middleware endpoints were built with help of AI, (see file `vite.config.ts`) which aren’t suitable for production. I kept it simple and self-contained in a single instance with no external database. There are however files for serverless functions for use with Vercel, which I couldn't finish in time.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+Estimated time spent on project: 18 hours  
 
-## Project Setup
+---
 
+## 🚀 Project Setup
+
+```sh
+cd movie-review-app
+```
+Install:
 ```sh
 npm install
 ```
-
-### Compile and Hot-Reload for Development
-
+Start:
 ```sh
 npm run dev
 ```
+Running at: [http://localhost:5173/](http://localhost:5173/)
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+---
+<img width="1291" height="1348" alt="image" src="https://github.com/user-attachments/assets/aa5b4cc2-165d-4c54-9270-adef4900e2d1" />
