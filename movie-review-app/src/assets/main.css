@@ -1,4 +1,3 @@
-@import './base.css';
 @import 'tailwindcss';
 @tailwind base;
 @tailwind components;
@@ -9,9 +8,7 @@
   --color-secondary: #393e46;
   --color-highlight: #ffd369;
   --color-white: #eeeeee;
-  --color-text: #eeeeee;
-  --color-text-alt: #ffffff;
-  --color-text-light: #b4b4b4;
+  --color-text: #ffffff;
 }
 
 @layer components {
