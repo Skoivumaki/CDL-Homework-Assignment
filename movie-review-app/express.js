@@ -8,7 +8,8 @@ import Movie from './src/models/movie.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const env = dotenv.config().parsed || {}
-const omdbKey = env.OMDB_KEY
+const omdbKey = process.env.OMDB_KEY || env.OMDB_KEY
+const mongoUri = process.env.MONGODB_URI || env.MONGODB_URI
 
 const app = express()
 
@@ -177,7 +178,7 @@ let isConnected = false
 
 async function connectToDatabase() {
   if (isConnected) return
-  const uri = env.MONGODB_URI
+  const uri = mongoUri
   if (!uri) {
     throw new Error('MONGODB_URI not set')
   }
