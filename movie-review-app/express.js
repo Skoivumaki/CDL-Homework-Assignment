@@ -82,6 +82,86 @@ app.post('/api/movie/:imdbID', async (req, res) => {
   }
 })
 
+// GET /api/reviews/:id return all reviews for movie with imdbID = id
+app.get('/api/reviews/:id', async (req, res) => {
+  const { id } = req.params
+
+  if (!id) {
+    return res.status(400).json({ error: 'Missing id' })
+  }
+
+  try {
+    await connectToDatabase()
+    const movie = await Movie.findOne({ imdbID: id }).lean()
+    if (!movie) {
+      return res.status(404).json({ error: 'Movie not found' })
+    }
+    return res.status(200).json(movie.Reviews)
+  } catch (err) {
+    console.error(err)
+    return res.status(502).json({ error: err.message })
+  }
+})
+
+// POST /api/review/:id add a review for movie with imdbID = id
+app.post('/api/reviews/post/:id', express.json(), async (req, res) => {
+  const { id } = req.params
+  const { User, Rating, Review } = req.body || {}
+
+  if (!id) {
+    return res.status(400).json({ error: 'Missing id' })
+  }
+
+  if (!User || !Rating || !Review) {
+    return res.status(400).json({ error: 'Missing User, Rating or Review' })
+  }
+
+  try {
+    await connectToDatabase()
+    const movie = await Movie.findOne({ imdbID: id })
+    if (!movie) {
+      return res.status(404).json({ error: 'Movie not found' })
+    }
+
+    movie.Reviews.push({ User, Rating, Review })
+    await movie.save()
+    return res.status(201).json(movie.Reviews)
+  } catch (err) {
+    console.error(err)
+    return res.status(502).json({ error: err.message })
+  }
+})
+
+// GET /api/reviews/user/:username return all reviews by user with username
+app.get('/api/reviews/user/:username', async (req, res) => {
+  const { username } = req.params
+
+  if (!username) {
+    return res.status(400).json({ error: 'Missing username' })
+  }
+
+  try {
+    await connectToDatabase()
+
+    const movies = await Movie.find({ 'Reviews.User': username }).lean()
+
+    const userReviews = movies.flatMap((movie) =>
+      movie.Reviews.filter((review) => review.User === username).map((review) => ({
+        Title: movie.Title,
+        imdbID: movie.imdbID,
+        User: review.User,
+        Rating: review.Rating,
+        Review: review.Review,
+      })),
+    )
+
+    return res.status(200).json(userReviews)
+  } catch (err) {
+    console.error(err)
+    return res.status(502).json({ error: err.message })
+  }
+})
+
 // Route all other requests to index.html (built vue app)
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
@@ -92,6 +172,7 @@ app.listen(PORT, () => {
   console.log(`Express at http://localhost:${PORT}`)
 })
 
+// Establish MongoDB connection
 let isConnected = false
 
 async function connectToDatabase() {
