@@ -7,7 +7,6 @@ import bodyParser from 'body-parser'
 import tailwindcss from '@tailwindcss/vite'
 import express from 'express'
 import Movie from './src/models/movie'
-import type { Review } from './src/types/review'
 import mongoose from 'mongoose'
 
 // export default defineConfig(({ mode }) => {
@@ -327,7 +326,7 @@ export function expressPlugin(): Plugin {
           )
           const json = await omdbRes.json()
           // Todo: fix whatever this is
-          movie = await Movie.create({ ...json, imdbID, Reviews: [] })
+          movie = await Movie.create({ ...(json as typeof Object), imdbID, Reviews: [] })
           return res.status(201).json(movie)
         } catch (err: unknown) {
           console.error(err)
