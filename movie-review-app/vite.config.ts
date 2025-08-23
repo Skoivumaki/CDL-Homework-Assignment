@@ -267,6 +267,18 @@ export function expressPlugin(): Plugin {
         res.json({ message: 'test' })
       })
 
+      // GET /api/movies/all return all movies in database
+      app.get('/api/movies/all', async (req, res) => {
+        try {
+          await connectToDatabase()
+          const movies = await Movie.find().lean()
+          return res.status(200).json(movies)
+        } catch (err: unknown) {
+          console.error(err)
+          return res.status(502).json({ error: (err as Error).message })
+        }
+      })
+
       // GET  /api/movie/:imdbID detailed movie information from OMDB
       app.get('/api/movie/:imdbID', async (req: { params: { imdbID: string } }, res) => {
         const imdbID = req.params.imdbID

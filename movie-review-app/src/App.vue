@@ -4,7 +4,7 @@ import type { Movie } from '@/types/movie'
 import TopNav from './components/TopNav.vue'
 import MovieGrid from './components/MovieGrid.vue'
 
-const MOVIES_URL = '/movieDB.json'
+const MOVIES_URL = '/api/movies/all'
 
 const movies = ref<Movie[]>([])
 const searchTerm = ref('')
