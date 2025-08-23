@@ -18,6 +18,9 @@ Note: Middleware endpoints were built with help of AI, (see file `vite.config.ts
 
 Estimated time spent on project: 18 hours  
 
+Dev Log 24.8:
+Got approval from AW to continue the project. App now properly running on Render using Express and MongoDB at: [https://cdl-homework-assignment.onrender.com/](https://cdl-homework-assignment.onrender.com/)
+
 ---
 
 ## Project Setup
