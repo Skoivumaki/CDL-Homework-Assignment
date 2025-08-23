@@ -260,13 +260,7 @@ export function expressPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    vueDevTools(),
-    tailwindcss(),
-    expressPlugin(), // <-- add it here
-  ],
+  plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss(), expressPlugin()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
