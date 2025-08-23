@@ -1,13 +1,9 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig, Plugin } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import bodyParser from 'body-parser'
 import tailwindcss from '@tailwindcss/vite'
-import express from 'express'
-import Movie from './src/models/movie'
-import mongoose from 'mongoose'
 
 // export default defineConfig(({ mode }) => {
 //   // Declaring "API" prototype endpoints. Todo: Run in Express instead. (Never mind, couldnt get express to work with vercel in the same instance as vite)
@@ -238,109 +234,109 @@ import mongoose from 'mongoose'
 //       })
 //     },
 //   })
-let isConnected = false
+// let isConnected = false
 
-async function connectToDatabase() {
-  if (isConnected) return
-  const uri = process.env.MONGODB_URI
-  if (!uri) {
-    throw new Error('MONGODB_URI not set')
-  }
-  await mongoose.connect(uri)
-  isConnected = true
-}
+// async function connectToDatabase() {
+//   if (isConnected) return
+//   const uri = process.env.MONGODB_URI
+//   if (!uri) {
+//     throw new Error('MONGODB_URI not set')
+//   }
+//   await mongoose.connect(uri)
+//   isConnected = true
+// }
 
-// Still attempting the middleware approach, since I really dont want to set up a separate backend for this small project. (and the delay on free Render etc)
-export function expressPlugin(): Plugin {
-  const omdbKey = process.env.OMDB_KEY
+// // Still attempting the middleware approach, since I really dont want to set up a separate backend for this small project. (and the delay on free Render etc)
+// export function expressPlugin(): Plugin {
+//   const omdbKey = process.env.OMDB_KEY
 
-  return {
-    name: 'vite:express',
-    configureServer(server) {
-      const app = express()
+//   return {
+//     name: 'vite:express',
+//     configureServer(server) {
+//       const app = express()
 
-      app.use(bodyParser.json())
+//       app.use(bodyParser.json())
 
-      // Simple test endpoint
-      app.get('/api/test', (req, res) => {
-        res.json({ message: 'test' })
-      })
+//       // Simple test endpoint
+//       app.get('/api/test', (req, res) => {
+//         res.json({ message: 'test' })
+//       })
 
-      // GET /api/movies/all return all movies in database
-      app.get('/api/movies/all', async (req, res) => {
-        try {
-          await connectToDatabase()
-          const movies = await Movie.find().lean()
-          return res.status(200).json(movies)
-        } catch (err: unknown) {
-          console.error(err)
-          return res.status(502).json({ error: (err as Error).message })
-        }
-      })
+//       // GET /api/movies/all return all movies in database
+//       app.get('/api/movies/all', async (req, res) => {
+//         try {
+//           await connectToDatabase()
+//           const movies = await Movie.find().lean()
+//           return res.status(200).json(movies)
+//         } catch (err: unknown) {
+//           console.error(err)
+//           return res.status(502).json({ error: (err as Error).message })
+//         }
+//       })
 
-      // GET  /api/movie/:imdbID detailed movie information from OMDB
-      app.get('/api/movie/:imdbID', async (req: { params: { imdbID: string } }, res) => {
-        const imdbID = req.params.imdbID
+//       // GET  /api/movie/:imdbID detailed movie information from OMDB
+//       app.get('/api/movie/:imdbID', async (req: { params: { imdbID: string } }, res) => {
+//         const imdbID = req.params.imdbID
 
-        if (!imdbID) {
-          return res.status(400).json({ error: 'Missing imdbID' })
-        }
+//         if (!imdbID) {
+//           return res.status(400).json({ error: 'Missing imdbID' })
+//         }
 
-        if (!omdbKey) {
-          return res.status(500).json({ error: 'OMDB_KEY not set' })
-        }
+//         if (!omdbKey) {
+//           return res.status(500).json({ error: 'OMDB_KEY not set' })
+//         }
 
-        try {
-          const omdbRes = await fetch(
-            `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`,
-          )
-          const json = await omdbRes.json()
-          return res.status(200).json(json)
-        } catch (err: unknown) {
-          console.error(err)
-          return res.status(502).json({ error: (err as Error).message })
-        }
-      })
+//         try {
+//           const omdbRes = await fetch(
+//             `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`,
+//           )
+//           const json = await omdbRes.json()
+//           return res.status(200).json(json)
+//         } catch (err: unknown) {
+//           console.error(err)
+//           return res.status(502).json({ error: (err as Error).message })
+//         }
+//       })
 
-      app.post('/api/movie/:imdbID', async (req, res) => {
-        const imdbID = req.params.imdbID
+//       app.post('/api/movie/:imdbID', async (req, res) => {
+//         const imdbID = req.params.imdbID
 
-        if (!imdbID) {
-          return res.status(400).json({ error: 'Missing imdbID' })
-        }
+//         if (!imdbID) {
+//           return res.status(400).json({ error: 'Missing imdbID' })
+//         }
 
-        if (!omdbKey) {
-          return res.status(500).json({ error: 'OMDB_KEY not set' })
-        }
-        try {
-          await connectToDatabase()
+//         if (!omdbKey) {
+//           return res.status(500).json({ error: 'OMDB_KEY not set' })
+//         }
+//         try {
+//           await connectToDatabase()
 
-          let movie = await Movie.findOne({ imdbID }).lean()
+//           let movie = await Movie.findOne({ imdbID }).lean()
 
-          if (movie) {
-            return res.status(200).json(movie)
-          }
+//           if (movie) {
+//             return res.status(200).json(movie)
+//           }
 
-          const omdbRes = await fetch(
-            `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`,
-          )
-          const json = await omdbRes.json()
-          // Todo: fix whatever this is
-          movie = await Movie.create({ ...(json as typeof Object), imdbID, Reviews: [] })
-          return res.status(201).json(movie)
-        } catch (err: unknown) {
-          console.error(err)
-          return res.status(502).json({ error: (err as Error).message })
-        }
-      })
+//           const omdbRes = await fetch(
+//             `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`,
+//           )
+//           const json = await omdbRes.json()
+//           // Todo: fix whatever this is
+//           movie = await Movie.create({ ...(json as typeof Object), imdbID, Reviews: [] })
+//           return res.status(201).json(movie)
+//         } catch (err: unknown) {
+//           console.error(err)
+//           return res.status(502).json({ error: (err as Error).message })
+//         }
+//       })
 
-      server.middlewares.use(app)
-    },
-  }
-}
+//       server.middlewares.use(app)
+//     },
+//   }
+// }
 
 export default defineConfig({
-  plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss(), expressPlugin()],
+  plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
