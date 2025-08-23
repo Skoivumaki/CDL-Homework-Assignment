@@ -42,7 +42,7 @@ const moviesWithRatings = computed(() => {
     <ul class="flex flex-wrap gap-10 list-none transition-all duration-500 w-full min-w-170 h-fit px-2 justify-center">
       <li v-for="movie in moviesWithRatings" :key="movie.imdbID" class="flex mb-2 transition-transform duration-500">
         <button @click="openDetails(movie.imdbID || 'tt0111161')"
-          class="bg-primary hover:outline-2 hover:outline-highlight shadow-md text-white font-bold p-3 rounded min-w-60">
+          class="bg-primary hover:outline-2 hover:outline-highlight shadow-md text-white font-bold p-3 rounded min-w-60 max-w-78">
           <MovieTile :movie="movie" />
         </button>
       </li>
