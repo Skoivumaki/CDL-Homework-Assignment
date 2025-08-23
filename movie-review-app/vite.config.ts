@@ -3,12 +3,8 @@ import { defineConfig, Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import path from 'node:path'
-import fs from 'fs/promises'
 import bodyParser from 'body-parser'
 import tailwindcss from '@tailwindcss/vite'
-import type { Movie } from './src/types/movie'
-import type { Review } from './src/types/review'
 import express from 'express'
 
 // export default defineConfig(({ mode }) => {
@@ -243,6 +239,8 @@ import express from 'express'
 
 // Still attempting the middleware approach, since I really dont want to set up a separate backend for this small project. (and the delay on free Render etc)
 export function expressPlugin(): Plugin {
+  const omdbKey = process.env.OMDB_KEY
+
   return {
     name: 'vite:express',
     configureServer(server) {
@@ -252,6 +250,30 @@ export function expressPlugin(): Plugin {
 
       app.get('/api/test', (req, res) => {
         res.json({ message: 'test' })
+      })
+
+      app.get('/api/movie/:imdbID', async (req: { params: { imdbID: string } }, res) => {
+        const imdbID = req.params.imdbID
+
+        if (!imdbID) {
+          return res.status(400).json({ error: 'Missing imdbID' })
+        }
+
+        if (!omdbKey) {
+          return res.status(500).json({ error: 'OMDB_KEY not set' })
+        }
+
+        try {
+          const omdbRes = await fetch(
+            `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`,
+          )
+          const json = await omdbRes.json()
+          console.log('s', json)
+          return res.status(200).json(json)
+        } catch (err: unknown) {
+          console.error(err)
+          return res.status(502).json({ error: (err as Error).message })
+        }
       })
 
       server.middlewares.use(app)
