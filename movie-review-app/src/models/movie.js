@@ -1,47 +1,12 @@
-import mongoose, { Schema, Document } from 'mongoose'
+import mongoose from 'mongoose'
 
-export interface Review {
-  User: string
-  Rating: number
-  Review: string
-}
-
-export interface Movie extends Document {
-  Title: string
-  Year: string
-  Rated: string
-  Released: string
-  Runtime: string
-  Genre: string
-  Director: string
-  Writer: string
-  Actors: string
-  Plot: string
-  Language: string
-  Country: string
-  Awards: string
-  Poster: string
-  Metascore: string
-  imdbRating: string
-  imdbVotes: string
-  imdbID: string
-  averageRating?: number | string
-  Reviews: { User: string; Rating: number; Review: string }[]
-  Type: string
-  DVD: string
-  BoxOffice: string
-  Production: string
-  Website: string
-  Response: string
-}
-
-const ReviewSchema = new Schema<Review>({
+const ReviewSchema = new mongoose.Schema({
   User: { type: String, required: true },
   Rating: { type: Number, required: true, min: 0, max: 10 },
   Review: { type: String, required: true },
 })
 
-const MovieSchema = new mongoose.Schema<Movie>({
+const MovieSchema = new mongoose.Schema({
   imdbID: { type: String, unique: true, required: true },
   Title: { type: String, required: true },
   Year: { type: String },
@@ -71,4 +36,4 @@ const MovieSchema = new mongoose.Schema<Movie>({
   Reviews: { type: [ReviewSchema], default: [] },
 })
 
-export default mongoose.models.Movie || mongoose.model<Movie>('Movie', MovieSchema)
+export default mongoose.models.Movie || mongoose.model('Movie', MovieSchema)
