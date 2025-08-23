@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Movie } from '@/types/movie'
 import TopNav from './components/TopNav.vue'
 import MovieGrid from './components/MovieGrid.vue'
@@ -9,7 +9,8 @@ const MOVIES_URL = '/api/movies/all'
 const movies = ref<Movie[]>([])
 const searchTerm = ref('')
 
-watchEffect(async () => {
+// only fetch once on mount
+onMounted(async () => {
   try {
     const res = await fetch(MOVIES_URL)
     movies.value = await res.json()
@@ -28,7 +29,6 @@ const filteredMovies = computed(() => {
     return t.includes(term) || d.includes(term)
   })
 })
-
 </script>
 
 <template>
