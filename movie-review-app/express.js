@@ -50,6 +50,38 @@ app.get('/api/movie/:imdbID', async (req, res) => {
   }
 })
 
+// POST add movie to database by imdbID
+app.post('/api/movie/:imdbID', async (req, res) => {
+  const imdbID = req.params.imdbID
+
+  if (!imdbID) {
+    return res.status(400).json({ error: 'Missing imdbID' })
+  }
+
+  if (!omdbKey) {
+    return res.status(500).json({ error: 'OMDB_KEY not set' })
+  }
+  try {
+    await connectToDatabase()
+
+    let movie = await Movie.findOne({ imdbID }).lean()
+
+    if (movie) {
+      return res.status(200).json(movie)
+    }
+
+    const omdbRes = await fetch(
+      `https://www.omdbapi.com/?apikey=${omdbKey}&i=${encodeURIComponent(imdbID)}&plot=short`,
+    )
+    const json = await omdbRes.json()
+    movie = await Movie.create({ ...json, imdbID, Reviews: [] })
+    return res.status(201).json(movie)
+  } catch (err) {
+    console.error(err)
+    return res.status(502).json({ error: err.message })
+  }
+})
+
 // Route all other requests to index.html (built vue app)
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
