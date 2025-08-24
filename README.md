@@ -12,19 +12,27 @@ Users can:
 
 ## Technical Notes
 
-- Built with **Vue.js** using Tailwind.
+- Built with Vue.js using Tailwind.
+- Running on Express where Vue built files are served.
+- Data stored in MongoDB
 
-Note: Middleware endpoints were built with help of AI, (see file `vite.config.ts`) which aren’t suitable for production. I kept it simple and self-contained in a single instance with no external online database. There are however serverless functions files for use with Vercel, which I couldn't finish in time.
+Estimated time spent on project: 24 hours
 
-Estimated time spent on project: 18 hours  
+## Development Log (after 21.8)
 
-Dev Log 24.8:
-Got approval from AW to continue the project. App now properly running on Render using Express and MongoDB at: [https://cdl-homework-assignment.onrender.com/](https://cdl-homework-assignment.onrender.com/)
+23.8 
+- Received approval from AW to continue with the project
+- Successfully deployed on Render with Express and MongoDB:
+  [https://cdl-homework-assignment.onrender.com/](https://cdl-homework-assignment.onrender.com/)
 
+24.8
+- Component fixes and new hook
+- Improved responsiveness across all devices
+- Cleaned up the codebase
 ---
 
 ## Project Setup
-
+Note: App isn't really meant to be run without enviroment variables for OMDB and Mongo, but there is a mock data file included for this. (see `App.vue`)
 ```sh
 cd movie-review-app
 ```
@@ -32,11 +40,16 @@ Install:
 ```sh
 npm install
 ```
+Build Vue:
+```sh
+npm run build
+```
 Start:
 ```sh
 npm run dev
 ```
-Running at: [http://localhost:5173/](http://localhost:5173/)
+Running at: [http://localhost:8080/](http://localhost:8080/)
 
 ---
-<img width="1291" height="1348" alt="image" src="https://github.com/user-attachments/assets/aa5b4cc2-165d-4c54-9270-adef4900e2d1" />
+<img width="1947" height="854" alt="image" src="https://github.com/user-attachments/assets/e5a07350-a4d3-4909-9b84-6d6166b506d0" />
+
