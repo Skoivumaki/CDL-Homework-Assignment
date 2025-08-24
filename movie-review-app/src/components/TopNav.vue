@@ -18,7 +18,7 @@ function updateSearchTerm(event: Event) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center m-2">
     <div class="flex flex-row items-center">
       <img src="@/assets/film-solid-full.svg" alt="Film Icon" class="w-10" />
       <h1>Movie Review App</h1>
