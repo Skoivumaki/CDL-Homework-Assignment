@@ -5,11 +5,14 @@ import ViewReviews from './ViewReviews.vue'
 import SubmitReview from './SubmitReview.vue'
 import { vOnClickOutside } from '@vueuse/components'
 import type { Movie } from '@/types/movie'
+import { useIsMobile } from '@/composables/useIsMobile'
+
 
 const props = defineProps<{ imdbID: string, averageReview?: string }>()
 const emit = defineEmits(['close'])
 const selectedMovieID = ref('')
 const isViewVisible = ref(false);
+const { isMobile } = useIsMobile()
 
 const { data: movieData, loading, error } = useFetch<Movie>(
   computed(() => props.imdbID ? `/api/movie/${props.imdbID}` : '')
@@ -54,7 +57,30 @@ function closeReviews() {
       @click="onBack">
       Close
     </button>
-    <div class="p-2 flex-row h-fit flex-shrink-0">
+    <Transition name="transition" v-if="!isViewVisible && isMobile">
+      <div v-if="!isViewVisible" class="p-2 flex-row h-fit flex-shrink-0">
+        <div v-if="loading" class="text-highlight text-center">Loading…</div>
+        <div v-else-if="error">{{ error }}</div>
+        <template v-else-if="movieData">
+          <div class="max-h-80 overflow-hidden text-clip">
+            <h1 class="truncate">{{ movieData.Title }} <small>({{ movieData.Year }})</small></h1>
+            <p>{{ movieData.Plot }}</p>
+            <p><strong>Director:</strong> {{ movieData.Director }}</p>
+            <p><strong>Genre:</strong> {{ movieData.Genre }}</p>
+            <p><strong>Rated:</strong> {{ movieData.Rated }}</p>
+            <p><strong>Runtime:</strong> {{ movieData.Runtime }}</p>
+            <p><strong>Release Date:</strong> {{ movieData.Released }}</p>
+            <p><strong>Actors:</strong> {{ movieData.Actors }}</p>
+            <p><strong>IMDB Rating:</strong> {{ movieData.imdbRating }} / 10</p>
+            <p><strong>Movie Review App Rating:</strong> {{ averageReview == '0' ? 'No reviews' : averageReview + ' / 5'
+              }}
+            </p>
+          </div>
+          <SubmitReview :imdbID=imdbID :Title=movieData.Title />
+        </template>
+      </div>
+    </Transition>
+    <div v-if="!isMobile" class="p-2 flex-row h-fit flex-shrink-0">
       <div v-if="loading" class="text-highlight text-center">Loading…</div>
       <div v-else-if="error">{{ error }}</div>
       <template v-else-if="movieData">
@@ -69,7 +95,7 @@ function closeReviews() {
           <p><strong>Actors:</strong> {{ movieData.Actors }}</p>
           <p><strong>IMDB Rating:</strong> {{ movieData.imdbRating }} / 10</p>
           <p><strong>Movie Review App Rating:</strong> {{ averageReview == '0' ? 'No reviews' : averageReview + ' / 5'
-            }}
+          }}
           </p>
         </div>
         <SubmitReview :imdbID=imdbID :Title=movieData.Title />
