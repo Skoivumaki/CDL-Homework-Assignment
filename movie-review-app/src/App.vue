@@ -6,6 +6,9 @@ import MovieGrid from './components/MovieGrid.vue'
 
 const MOVIES_URL = '/api/movies/all'
 
+// Enable this for local testing without backend.
+// const MOVIES_URL = 'movieDB.json'
+
 const movies = ref<Movie[]>([])
 const searchTerm = ref('')
 
