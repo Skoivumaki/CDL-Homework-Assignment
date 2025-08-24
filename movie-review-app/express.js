@@ -15,11 +15,6 @@ const app = express()
 
 app.use(express.static(path.join(__dirname, 'dist')))
 
-// SErve favicon
-app.get('/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'favicon.ico'))
-})
-
 // GET /api/movies/all return all movies in database
 app.get('/api/movies/all', async (req, res) => {
   try {
